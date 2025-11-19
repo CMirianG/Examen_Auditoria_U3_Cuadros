@@ -4,13 +4,13 @@
 
 **Entidad Auditada:** Corporate EPIS Pilot - Sistema de Help Desk con Inteligencia Artificial  
 
-**Ubicación:** [Ciudad, distrito, provincia, país]  
+**Ubicación:** Tacna, Perú
 
-**Período auditado:** [Desde dd/mm/aaaa hasta dd/mm/aaaa]  
+**Período auditado:** 19/11/2025  
 
 **Equipo Auditor:** Mirian Cuadros Garcia - 2021071083  
 
-**Fecha del informe:** [dd/mm/aaaa]  
+**Fecha del informe:** 19/11/2025
 
 ---
 
@@ -46,7 +46,7 @@
 
 Este apartado se desarrolla al final de la auditoría realizada y es una descripción breve y concisa del propósito de la auditoría, principales hallazgos, conclusiones y recomendaciones más relevantes.
 
-**Evidencia:** [A completar]
+**Evidencia:** Se encuentran en la carpeta de evidencias dos fotos en png de la funcionalidad del sistema y el uso de docker. 
 
 ---
 
