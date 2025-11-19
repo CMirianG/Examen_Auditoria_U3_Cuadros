@@ -51,20 +51,43 @@ app.add_middleware(
 Instrumentator().instrument(app).expose(app)
 
 
-llm = OllamaLLM(model="smollm:360m", temperature=0, base_url="http://host.docker.internal:11434")
+# Ajustar temperatura para smollm:360m - modelo pequeño funciona mejor con temperatura ligeramente mayor
+llm = OllamaLLM(model="smollm:360m", temperature=0.3, base_url="http://host.docker.internal:11434")
 embeddings = HuggingFaceEmbeddings(model_name="intfloat/multilingual-e5-large")
 vector_store = Chroma(persist_directory=VECTOR_STORE_DIR, embedding_function=embeddings)
 retriever = vector_store.as_retriever()
 
 # --- LÓGICA DE LANGCHAIN (MODIFICADA) ---
-rag_prompt_template = "Usa el siguiente contexto para responder en español de forma concisa y útil a la pregunta.\nContexto: {context}\nPregunta: {question}\nRespuesta:"
+# Prompt simplificado para smollm:360m - más directo y claro
+rag_prompt_template = """Responde la pregunta usando el contexto. Responde en español, de forma breve y clara.
+
+Contexto: {context}
+
+Pregunta: {question}
+
+Respuesta:"""
 rag_prompt = PromptTemplate.from_template(rag_prompt_template)
 rag_chain = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever, chain_type_kwargs={"prompt": rag_prompt})
 
 def create_support_ticket(description: str) -> str:
     """Crea un ticket de soporte y devuelve un mensaje de confirmación."""
+    import os
+    # Asegurar que el directorio existe
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+    
+    # Crear tabla si no existe
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS tickets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        description TEXT NOT NULL,
+        status TEXT NOT NULL
+    )
+    ''')
+    conn.commit()
+    
     problem_description = description.replace("ACTION_CREATE_TICKET:", "").strip()
     if not problem_description:
         problem_description = "Problema no especificado por el usuario."
@@ -81,40 +104,47 @@ class RouteQuery(BaseModel):
     intent: Literal["pregunta_general", "reporte_de_problema", "despedida"] = Field(description="La intención del usuario.")
 
 output_parser = JsonOutputParser(pydantic_object=RouteQuery)
-# CAMBIO 2: Actualizamos el prompt para que el LLM sepa qué es una 'despedida'
+# Prompt simplificado para smollm:360m - modelo pequeño necesita instrucciones muy claras
 router_prompt = PromptTemplate(
-    template="""Eres un clasificador de intenciones. Clasifica la pregunta del usuario en una de estas tres categorías:
+    template="""Clasifica la pregunta en una sola palabra: pregunta_general, reporte_de_problema, o despedida.
 
-- 'pregunta_general': El usuario pide información (¿qué es?, ¿cuántos?, ¿cómo?).
-- 'reporte_de_problema': El usuario describe un problema, algo está roto o no funciona, necesita ayuda.
-- 'despedida': El usuario expresa gratitud o se despide (gracias, adiós, perfecto, vale).
+Reglas:
+- pregunta_general = pregunta de información (qué, cómo, cuántos)
+- reporte_de_problema = problema o algo roto
+- despedida = gracias o adiós
 
-IMPORTANTE: Responde ÚNICAMENTE con un objeto JSON válido en este formato exacto:
-{{"intent": "nombre_de_la_categoria"}}
+Pregunta: {question}
 
-Pregunta del usuario: {question}
-
-Respuesta JSON:""",
+Responde SOLO con este formato exacto (sin nada más):
+{{"intent": "pregunta_general"}}""",
     input_variables=["question"],
 )
 def extract_json_from_string(text: str) -> str:
-    # Buscar el JSON más interno si hay múltiples
-    matches = list(re.finditer(r'\{[^{}]*"intent"[^{}]*\}', text, re.DOTALL))
-    if matches:
-        # Tomar el último match (más probable que sea el correcto)
-        return matches[-1].group(0)
+    # Normalizar comillas simples a dobles y limpiar espacios
+    text = text.replace("'", '"').strip()
     
-    # Si no encuentra un JSON con "intent", buscar cualquier JSON
-    match = re.search(r'\{"intent":\s*"[\w_]+"\}', text, re.DOTALL)
+    # Buscar JSON con comillas dobles
+    match = re.search(r'\{"intent":\s*"[\w_]+"\}', text)
     if match:
         return match.group(0)
     
-    # Buscar cualquier JSON simple
-    match = re.search(r'\{[^{}]*\}', text, re.DOTALL)
+    # Buscar JSON con comillas simples (ya normalizado)
+    match = re.search(r'\{[^{}]*"intent"[^{}]*\}', text)
     if match:
-        return match.group(0)
+        json_str = match.group(0)
+        # Normalizar comillas simples a dobles si es necesario
+        json_str = json_str.replace("'", '"')
+        # Asegurar que el valor de intent esté entre comillas
+        json_str = re.sub(r'("intent"\s*:\s*)(\w+)', r'\1"\2"', json_str)
+        return json_str
     
-    # Si no encuentra JSON o la pregunta es muy corta, es probable que sea una despedida
+    # Si no encuentra JSON válido, intentar inferir desde palabras clave
+    text_lower = text.lower()
+    if any(word in text_lower for word in ['problema', 'roto', 'no funciona', 'error', 'falla']):
+        return '{"intent": "reporte_de_problema"}'
+    if any(word in text_lower for word in ['gracias', 'adiós', 'adios', 'perfecto', 'vale', 'ok']):
+        return '{"intent": "despedida"}'
+    
     return '{"intent": "pregunta_general"}'
 
 router_chain = router_prompt | llm | RunnableLambda(extract_json_from_string) | output_parser
@@ -129,6 +159,20 @@ def ask_question(question: str):
     try:
         if question.startswith("ACTION_CREATE_TICKET:"):
             description = question.split(":", 1)[1]
+            return {"answer": create_support_ticket(description), "follow_up_required": False}
+
+        # SOLUCIÓN RÁPIDA: Detectar directamente cuando el usuario quiere un ticket
+        question_lower = question.lower()
+        ticket_keywords = ["quiero un ticket", "necesito un ticket", "quiero ticket", "necesito ticket", "dame un ticket", "crear ticket", "generar ticket"]
+        if any(keyword in question_lower for keyword in ticket_keywords):
+            # Extraer descripción del problema si hay texto adicional
+            description = question
+            for keyword in ticket_keywords:
+                if keyword in question_lower:
+                    description = question.lower().replace(keyword, "").strip()
+                    break
+            if not description or len(description) < 3:
+                description = "Solicitud de ticket de soporte"
             return {"answer": create_support_ticket(description), "follow_up_required": False}
 
         decision_result = chain_with_preserved_input.invoke({"question": question})
