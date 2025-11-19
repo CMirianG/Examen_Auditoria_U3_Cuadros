@@ -52,8 +52,6 @@ El sistema presenta una arquitectura sólida y uso innovador de IA, sin embargo,
 4. Restringir configuración CORS y implementar validación de entrada
 5. Mejorar manejo de errores y logging para auditoría
 
-**Evidencia:** [A completar]
-
 ---
 
 ## 2. ANTECEDENTES
@@ -70,7 +68,6 @@ El sistema Corporate EPIS Pilot es una aplicación de Help Desk asistida por Int
 
 **Antecedentes de auditorías previas:** [Indicar si existen auditorías previas o si esta es la primera]
 
-**Evidencia:** [A completar]
 
 ---
 
@@ -80,7 +77,6 @@ El sistema Corporate EPIS Pilot es una aplicación de Help Desk asistida por Int
 
 **Evaluar la seguridad, integridad, disponibilidad y cumplimiento normativo del sistema Corporate EPIS Pilot, identificando riesgos y vulnerabilidades que puedan afectar la confidencialidad de la información, la continuidad del servicio y la calidad de la atención al usuario.**
 
-**Evidencia:** [A completar]
 
 ---
 
@@ -89,28 +85,26 @@ El sistema Corporate EPIS Pilot es una aplicación de Help Desk asistida por Int
 #### Objetivo Específico 1: Evaluar la Seguridad de la Información y Protección de Datos Personales
 Evaluar las medidas de seguridad implementadas para proteger la información almacenada en el sistema, incluyendo datos personales de usuarios, historiales de conversación y tickets de soporte. Verificar el cumplimiento de principios de confidencialidad, integridad y disponibilidad de la información.
 
-**Evidencia:** [A completar]
+
 
 ---
 
 #### Objetivo Específico 2: Evaluar la Disponibilidad y Continuidad del Servicio
 Verificar la disponibilidad del sistema y las medidas implementadas para garantizar la continuidad del servicio de Help Desk, incluyendo evaluación de la infraestructura de despliegue (Docker, Kubernetes), redundancia de componentes y procedimientos de recuperación ante desastres.
 
-**Evidencia:** [A completar]
+
 
 ---
 
 #### Objetivo Específico 3: Evaluar la Integridad y Confiabilidad de los Datos Almacenados
 Examinar la integridad de los datos almacenados en las bases de datos (SQLite para tickets y ChromaDB para conocimiento vectorial), verificando mecanismos de respaldo, recuperación de datos, validación de entrada y consistencia de la información.
 
-**Evidencia:** [A completar]
 
 ---
 
 #### Objetivo Específico 4: Evaluar el Cumplimiento de Buenas Prácticas de Desarrollo y Despliegue
 Revisar la implementación del código, configuración de servicios, gestión de dependencias y despliegue del sistema, verificando el cumplimiento de estándares de desarrollo seguro, gestión de versiones, documentación técnica y prácticas de DevOps.
 
-**Evidencia:** [A completar]
 
 ---
 
@@ -141,7 +135,6 @@ Revisar la implementación del código, configuración de servicios, gestión de
 ### 4.4. Período Auditado
 [Desde dd/mm/aaaa hasta dd/mm/aaaa]
 
-**Evidencia:** [A completar]
 
 ---
 
@@ -166,7 +159,6 @@ Revisar la implementación del código, configuración de servicios, gestión de
 - Calidad del código y mantenibilidad
 - Disponibilidad y recuperabilidad del servicio
 
-**Evidencia:** [A completar]
 
 ---
 
@@ -185,8 +177,6 @@ Enfoque mixto basado en riesgos y cumplimiento normativo.
   - Pruebas de funcionamiento del sistema
 - **Revisión de configuraciones:** Docker, docker-compose, Kubernetes, servicios
 - **Aplicación de listas de verificación:** Basadas en OWASP, CWE y mejores prácticas
-
-**Evidencia:** [A completar]
 
 ---
 
@@ -437,7 +427,6 @@ Enfoque mixto basado en riesgos y cumplimiento normativo.
 | 7        | Pérdida total de datos sin posibilidad de recuperación | Alto | Media | Alto |
 | 8        | Imposibilidad de auditoría, investigación de incidentes y detección de anomalías | Medio | Alta | Medio |
 
-**Evidencia:** [A completar]
 
 ---
 
@@ -448,7 +437,6 @@ Enfoque mixto basado en riesgos y cumplimiento normativo.
 
 **Prioridad:** Alta
 
-**Evidencia:** [A completar]
 
 ---
 
@@ -457,7 +445,6 @@ Enfoque mixto basado en riesgos y cumplimiento normativo.
 
 **Prioridad:** Alta
 
-**Evidencia:** [A completar]
 
 ---
 
@@ -466,7 +453,6 @@ Enfoque mixto basado en riesgos y cumplimiento normativo.
 
 **Prioridad:** Media
 
-**Evidencia:** [A completar]
 
 ---
 
@@ -475,7 +461,6 @@ Enfoque mixto basado en riesgos y cumplimiento normativo.
 
 **Prioridad:** Media
 
-**Evidencia:** [A completar]
 
 ---
 
@@ -484,7 +469,6 @@ Enfoque mixto basado en riesgos y cumplimiento normativo.
 
 **Prioridad:** Alta
 
-**Evidencia:** [A completar]
 
 ---
 
@@ -493,7 +477,6 @@ Enfoque mixto basado en riesgos y cumplimiento normativo.
 
 **Prioridad:** Baja
 
-**Evidencia:** [A completar]
 
 ---
 
@@ -502,8 +485,6 @@ Enfoque mixto basado en riesgos y cumplimiento normativo.
 
 **Prioridad:** Alta
 
-**Evidencia:** [A completar]
-
 ---
 
 ### 9.8. Recomendación 8 (Asociada al Hallazgo 8): Mejorar Logging para Auditoría
@@ -511,7 +492,6 @@ Enfoque mixto basado en riesgos y cumplimiento normativo.
 
 **Prioridad:** Media
 
-**Evidencia:** [A completar]
 
 ---
 
@@ -556,7 +536,6 @@ Los controles existentes son **adecuados en aspectos funcionales y técnicos**, 
 
 **Recomendación General:** El sistema requiere implementación prioritaria de controles de seguridad (autenticación, validación, CORS) y estrategia de continuidad (backups, manejo de errores) antes de su despliegue en producción. Se estima que la implementación de las recomendaciones críticas requerirá un esfuerzo mínimo de 4-6 semanas de desarrollo.
 
-**Evidencia:** [A completar]
 
 ---
 
@@ -578,7 +557,6 @@ Los controles existentes son **adecuados en aspectos funcionales y técnicos**, 
 - **Prioridad Media (Implementación - 4 semanas):** Hallazgos 3, 4, 8
 - **Prioridad Baja (Mejora continua):** Hallazgo 6
 
-**Evidencia:** [A completar]
 
 ---
 
@@ -587,42 +565,36 @@ Los controles existentes son **adecuados en aspectos funcionales y técnicos**, 
 ### Anexo A: Cuestionarios Aplicados
 [Descripción y copia de cuestionarios utilizados en la auditoría]
 
-**Evidencia:** [A completar]
 
 ---
 
 ### Anexo B: Capturas de Pantalla
 [Descripción de capturas de pantalla relevantes]
 
-**Evidencia:** [A completar]
 
 ---
 
 ### Anexo C: Registros de Logs
 [Descripción de registros de logs analizados]
 
-**Evidencia:** [A completar]
 
 ---
 
 ### Anexo D: Configuraciones Revisadas
 [Descripción de archivos de configuración revisados]
 
-**Evidencia:** [A completar]
 
 ---
 
 ### Anexo E: Revisión de Código Fuente
 [Descripción de archivos de código fuente revisados]
 
-**Evidencia:** [A completar]
 
 ---
 
 ### Anexo F: Políticas y Documentación Revisada
 [Descripción de políticas y documentación técnica revisada]
 
-**Evidencia:** [A completar]
 
 ---
 
@@ -642,8 +614,6 @@ El sistema implementa una arquitectura de microservicios con:
 - Router LangChain para clasificación de intenciones
 - RAG Chain para respuestas basadas en conocimiento
 - Bases de datos persistentes para tickets y conocimiento vectorial
-
-**Evidencia:** [A completar]
 
 ---
 
