@@ -4,13 +4,6 @@
 
 **Entidad Auditada:** Corporate EPIS Pilot - Sistema de Help Desk con Inteligencia Artificial  
 
-**Ubicación:** [Ciudad, distrito, provincia, país]  
-
-**Período auditado:** [Desde dd/mm/aaaa hasta dd/mm/aaaa]  
-
-**Equipo Auditor:** Mirian Cuadros Garcia - 2021071083  
-
-**Fecha del informe:** [dd/mm/aaaa]  
 
 ---
 
