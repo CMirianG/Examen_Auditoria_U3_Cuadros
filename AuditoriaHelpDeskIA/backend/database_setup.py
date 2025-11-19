@@ -1,7 +1,13 @@
 # backend/database_setup.py
 import sqlite3
 
-DB_PATH = "tickets.db"
+import os
+
+DB_PATH = "data/tickets.db"
+
+def setup_database():
+    # Crear el directorio data si no existe
+    os.makedirs("data", exist_ok=True)
 
 def setup_database():
     conn = sqlite3.connect(DB_PATH)
@@ -18,7 +24,7 @@ def setup_database():
 
     conn.commit()
     conn.close()
-    print("Base de datos 'tickets.db' y tabla 'tickets' configuradas correctamente.")
+    print(f"Base de datos '{DB_PATH}' y tabla 'tickets' configuradas correctamente.")
 
 if __name__ == "__main__":
     setup_database()

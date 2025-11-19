@@ -40,7 +40,7 @@ logging.getLogger("uvicorn.access").handlers = [InterceptHandler()]
 
 # --- CONFIGURACIÓN Y MODELOS ---
 VECTOR_STORE_DIR = "vector_store"
-DB_PATH = "tickets.db"
+DB_PATH = "data/tickets.db"
 app = FastAPI(title="Corporate EPIS Pilot API - Advanced Flow")
 app.add_middleware(
     CORSMiddleware,
@@ -51,7 +51,7 @@ app.add_middleware(
 Instrumentator().instrument(app).expose(app)
 
 
-llm = OllamaLLM(model="llama3.1:8b", temperature=0, base_url="http://host.docker.internal:11434")
+llm = OllamaLLM(model="smollm:360m", temperature=0, base_url="http://host.docker.internal:11434")
 embeddings = HuggingFaceEmbeddings(model_name="intfloat/multilingual-e5-large")
 vector_store = Chroma(persist_directory=VECTOR_STORE_DIR, embedding_function=embeddings)
 retriever = vector_store.as_retriever()
@@ -83,23 +83,39 @@ class RouteQuery(BaseModel):
 output_parser = JsonOutputParser(pydantic_object=RouteQuery)
 # CAMBIO 2: Actualizamos el prompt para que el LLM sepa qué es una 'despedida'
 router_prompt = PromptTemplate(
-    template="""
-    Clasifica la pregunta del usuario en 'pregunta_general', 'reporte_de_problema' o 'despedida'. Responde solo con JSON.
-    'pregunta_general': El usuario pide información (¿qué es?, ¿cuántos?, ¿cómo?).
-    'reporte_de_problema': El usuario describe un problema, algo está roto o no funciona.
-    'despedida': El usuario expresa gratitud o se despide (gracias, adiós, perfecto, vale).
-    Pregunta: {question}
-    Formato: {format_instructions}
-    """,
+    template="""Eres un clasificador de intenciones. Clasifica la pregunta del usuario en una de estas tres categorías:
+
+- 'pregunta_general': El usuario pide información (¿qué es?, ¿cuántos?, ¿cómo?).
+- 'reporte_de_problema': El usuario describe un problema, algo está roto o no funciona, necesita ayuda.
+- 'despedida': El usuario expresa gratitud o se despide (gracias, adiós, perfecto, vale).
+
+IMPORTANTE: Responde ÚNICAMENTE con un objeto JSON válido en este formato exacto:
+{{"intent": "nombre_de_la_categoria"}}
+
+Pregunta del usuario: {question}
+
+Respuesta JSON:""",
     input_variables=["question"],
-    partial_variables={"format_instructions": output_parser.get_format_instructions()},
 )
 def extract_json_from_string(text: str) -> str:
-    match = re.search(r'\{.*\}', text, re.DOTALL)
+    # Buscar el JSON más interno si hay múltiples
+    matches = list(re.finditer(r'\{[^{}]*"intent"[^{}]*\}', text, re.DOTALL))
+    if matches:
+        # Tomar el último match (más probable que sea el correcto)
+        return matches[-1].group(0)
+    
+    # Si no encuentra un JSON con "intent", buscar cualquier JSON
+    match = re.search(r'\{"intent":\s*"[\w_]+"\}', text, re.DOTALL)
+    if match:
+        return match.group(0)
+    
+    # Buscar cualquier JSON simple
+    match = re.search(r'\{[^{}]*\}', text, re.DOTALL)
+    if match:
+        return match.group(0)
+    
     # Si no encuentra JSON o la pregunta es muy corta, es probable que sea una despedida
-    if not match and len(text) < 20:
-        return '{"intent": "despedida"}'
-    return match.group(0) if match else '{"intent": "pregunta_general"}'
+    return '{"intent": "pregunta_general"}'
 
 router_chain = router_prompt | llm | RunnableLambda(extract_json_from_string) | output_parser
 
